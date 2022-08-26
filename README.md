@@ -1,0 +1,1 @@
+# lopata_bot
