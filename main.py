@@ -22,7 +22,8 @@ def handle_mute_cmd(message):
 
 @bot.message_handler(content_types=['new_chat_members'])
 def handle_new_member(message):
-    bot.reply_to(message, helpers.greet(message.from_user.username))
+    usr = message.new_chat_member.username
+    bot.reply_to(message, helpers.greet(usr))
 
 
 @bot.message_handler(content_types=['sticker'])
