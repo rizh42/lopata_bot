@@ -1,6 +1,7 @@
 import telebot
-import time
 import creds
+import helpers
+import time
 
 TOKEN = creds.TOKEN
 
@@ -9,37 +10,29 @@ sent_sticker = {}
 bot = telebot.TeleBot(TOKEN)
 
 
-def listener(messages):
-    with open('C:\\obschaga_bot\\log.txt', 'a+') as f:
-        for m in messages:
-            if m.content_type == 'text' or m.content_type == 'sticker':
-                f.write(str(m.from_user.username) + "||" + time.strftime("%m/%d/%Y, %H:%M:%S", time.gmtime(m.date)) + "||" +
-                      " [" + str(m.chat.id) + "] || " + m.content_type + "||" + m.chat.type + '\n')
-
-
-def check_timeout(message, username):
+@bot.message_handler(commands=['mute'])
+def handle_mute_cmd(message):
     if bot.get_chat_member(message.chat.id, message.from_user.id).status in ['administrator', 'creator']:
-        return False
-    else:
-        if username in sent_sticker:
-            if message.date - sent_sticker[username] > 60:
-                sent_sticker.pop(username)
-                return False
-            else:
-                return True
-        else:
-            sent_sticker[username] = message.date
-            return False
+        lst = message.text.split(' ')
+        how_long = lst[1]
+        uid_for_ban = message.reply_to_message.from_user.id
+        bot.restrict_chat_member(chat_id=message.chat.id, user_id=uid_for_ban, until_date=time.time() + how_long)
+        bot.reply_to(message, f'{bot.get_chat_member(message.chat.id, uid_for_ban)} был замучен на {how_long}')
+
+
+@bot.message_handler(content_types=['new_chat_members'])
+def handle_new_member(message):
+    bot.reply_to(message, helpers.greet(message.from_user.username))
 
 
 @bot.message_handler(content_types=['sticker'])
 def handle_stickers(message):
     usr = message.from_user.username
-    sticker_timeout_flg = check_timeout(message, usr)
+    sticker_timeout_flg = helpers.check_timeout(bot, sent_sticker, message, usr)
     if sticker_timeout_flg:
         bot.delete_message(message.chat.id, message.message_id)
 
 
-bot.set_update_listener(listener)
+bot.set_update_listener(helpers.listener)
 bot.infinity_polling()
 
