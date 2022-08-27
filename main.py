@@ -1,21 +1,23 @@
 import telebot
 import time
+import creds
 
-TOKEN = ''
+TOKEN = creds.TOKEN
 
 sent_sticker = {}
 
 bot = telebot.TeleBot(TOKEN)
 
+
 def listener(messages):
-    for m in messages:
-        if m.content_type == 'text' or m.content_type == 'sticker':
-            print(str(m.from_user.username) + "||" + time.strftime("%m/%d/%Y, %H:%M:%S", time.gmtime(m.date)) + "||" +
-                  " [" + str(m.chat.id) + "] || " + m.content_type + "||" + m.chat.type)
+    with open('C:\\obschaga_bot\\log.txt', 'a+') as f:
+        for m in messages:
+            if m.content_type == 'text' or m.content_type == 'sticker':
+                f.write(str(m.from_user.username) + "||" + time.strftime("%m/%d/%Y, %H:%M:%S", time.gmtime(m.date)) + "||" +
+                      " [" + str(m.chat.id) + "] || " + m.content_type + "||" + m.chat.type + '\n')
 
 
 def check_timeout(message, username):
-    #print(username, int(time.time()), message.date, bot.get_chat_member(message.chat.id, message.from_user.id).status)
     if bot.get_chat_member(message.chat.id, message.from_user.id).status in ['administrator', 'creator']:
         return False
     else:
