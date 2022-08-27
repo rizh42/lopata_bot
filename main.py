@@ -18,6 +18,8 @@ def handle_mute_cmd(message):
         uid_for_ban = message.reply_to_message.from_user.id
         bot.restrict_chat_member(chat_id=message.chat.id, user_id=uid_for_ban, until_date=time.time() + how_long)
         bot.reply_to(message, f'{bot.get_chat_member(message.chat.id, uid_for_ban)} был замучен на {how_long}')
+    else:
+        bot.reply_to(message, 'Ах ты шалунишка, этот функционал только для админов')
 
 
 @bot.message_handler(content_types=['new_chat_members'])
