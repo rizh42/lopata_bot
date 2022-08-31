@@ -22,14 +22,15 @@ def handle_mute_cmd(message):
             bot.reply_to(message, 'Админов мутить нельзя, обратись к @rezepinn, @Lil_Danil228 или @rizh42')
         else:
             bot.restrict_chat_member(chat_id=message.chat.id, user_id=uid_for_ban, until_date=time.time() + how_long)
-            bot.reply_to(message, f'@{bot.get_chat_member(message.chat.id, uid_for_ban).user.username} был замучен на {how_long}')
-    else:
-        bot.reply_to(message, 'Ах ты шалунишка, этот функционал только для админов')
+            bot.reply_to(message, f'@{bot.get_chat_member(message.chat.id, uid_for_ban).user.username} был замучен на\
+                                        {how_long}')
 
 
 @bot.message_handler(content_types=['new_chat_members'])
 def handle_new_member(message):
     usr = message.new_chat_members[-1].username
+    if usr is None:
+        usr = message.new_chat_members[-1].first_name
     print(message)
     bot.reply_to(message, helpers.greet(usr))
 
@@ -41,6 +42,14 @@ def handle_stickers(message):
     sticker_timeout_flg = helpers.check_timeout(bot, sent_sticker, message, usr)
     if sticker_timeout_flg:
         bot.delete_message(message.chat.id, message.message_id)
+
+
+@bot.message_handler(content_types=['text'])
+def handle_hashtags(message):
+    chat_id = message.chat.id
+    group_id = '@coliving5'
+    if message.text.find("#важно") != -1:
+        bot.forward_message(group_id, chat_id, message.message_id)
 
 
 bot.set_update_listener(helpers.listener)
