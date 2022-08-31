@@ -14,25 +14,29 @@ bot = telebot.TeleBot(TOKEN)
 def handle_mute_cmd(message):
     if bot.get_chat_member(message.chat.id, message.from_user.id).status in ['administrator', 'creator']:
         lst = message.text.split(' ')
-        how_long = lst[1]
+        how_long = float(lst[1])
+        if how_long <= 30.0:
+            how_long = 31.0
         uid_for_ban = message.reply_to_message.from_user.id
         if bot.get_chat_member(message.chat.id, uid_for_ban).status in ['administrator', 'creator']:
             bot.reply_to(message, 'Админов мутить нельзя, обратись к @rezepinn, @Lil_Danil228 или @rizh42')
         else:
             bot.restrict_chat_member(chat_id=message.chat.id, user_id=uid_for_ban, until_date=time.time() + how_long)
-            bot.reply_to(message, f'{bot.get_chat_member(message.chat.id, uid_for_ban)} был замучен на {how_long}')
+            bot.reply_to(message, f'@{bot.get_chat_member(message.chat.id, uid_for_ban).user.username} был замучен на {how_long}')
     else:
         bot.reply_to(message, 'Ах ты шалунишка, этот функционал только для админов')
 
 
 @bot.message_handler(content_types=['new_chat_members'])
 def handle_new_member(message):
-    usr = message.new_chat_member.username
+    usr = message.new_chat_members[-1].username
+    print(message)
     bot.reply_to(message, helpers.greet(usr))
 
 
 @bot.message_handler(content_types=['sticker'])
 def handle_stickers(message):
+    print(message)
     usr = message.from_user.username
     sticker_timeout_flg = helpers.check_timeout(bot, sent_sticker, message, usr)
     if sticker_timeout_flg:
